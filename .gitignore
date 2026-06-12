@@ -1,0 +1,26 @@
+.DS_Store
+Thumbs.db
+
+# Local agent and planning metadata
+.agents/
+.claude/
+.codex/
+openspec/
+docs/superpowers/
+
+# Packaged extension artifacts
+*.zip
+*.crx
+*.xpi
+
+# Runtime and dependency output
+node_modules/
+dist/
+build/
+coverage/
+*.log
+
+# Local environment files
+.env
+.env.*
+!.env.example
