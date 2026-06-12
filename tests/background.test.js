@@ -89,3 +89,31 @@ test('TRANSLATE uses stored custom Base URL when configured', async () => {
   assert.equal(response.translatedText, 'hello');
   assert.equal(requests[0].url, 'https://token-plan.example.com/v1/chat/completions');
 });
+
+test('reddit prompt asks for ordinary human wording instead of AI slop', async () => {
+  const { listeners, requests } = createRuntime({
+    storageSettings: {
+      apiProvider: 'mimo',
+      apiKey: 'test-key',
+      model: 'mimo-v2-flash',
+      promptStyle: 'reddit'
+    },
+    fetchResponse: {
+      body: { choices: [{ message: { content: 'this feels off to me' } }] }
+    }
+  });
+
+  await sendRuntimeMessage(listeners[0], {
+    type: 'TRANSLATE',
+    text: '我觉得这个有点不太对劲'
+  });
+
+  const body = JSON.parse(requests[0].options.body);
+  const redditPrompt = body.messages[0].content;
+
+  assert.match(redditPrompt, /ordinary Reddit user/i);
+  assert.match(redditPrompt, /not by an assistant/i);
+  assert.match(redditPrompt, /AI slop/i);
+  assert.match(redditPrompt, /overly polished/i);
+  assert.match(redditPrompt, /Preserve the user's meaning/i);
+});
